@@ -1,16 +1,13 @@
-// в хранилище должны находиться такие состояния как, карточки (посты), изначально она будет одна созданная мной, далее, 
-// titles, descriptions, full-texts, comments, comments count, isEditing
 
-import { createStore } from 'zustand/vanilla'
 import { create } from 'zustand'
 
-interface Comment {
+export interface Comment {
     id: string;
     text: string;
     createdAt: Date;
 }
 
-interface Card {
+export interface Post {
     id: string;
     title: string;
     description: string;
@@ -20,14 +17,30 @@ interface Card {
     createdAt: Date;
 }
 
-interface CardState {
-    posts: Card[];
-    addPost: (post: Omit<Card, 'id' | 'createdAt' | 'commentsCount'>) => void;
+interface PostState {
+    posts: Post[];
+    addPost: (post: Omit<Post, 'id' | 'createdAt' | 'commentsCount'>) => void;
     addComment: (postId: string, comment: Omit<Comment, 'id' | 'createdAt'>) => void;
 }
 
-const useCardStore = createStore<CardState>((set) => ({
-    posts: [],
+const staticCard: Post = {
+    id: '1',
+    title: 'Static Card Title',
+    description: 'This is a static card description',
+    fullText: 'This is a static card full text This is a static card full text This is a static card full text This is a static card full text This is a static card full text This is a static card full text This is a static card full text This is a static card full text This is a static card full text',
+    comments: [
+        {
+            id: '1',
+            text: 'This is a static comment',
+            createdAt: new Date(),
+        },
+    ],
+    commentsCount: 1,
+    createdAt: new Date(),
+}
+
+const useCardStore = create<PostState>((set) => ({
+    posts: [staticCard],
     addPost: (post) => 
         set((state) => ({
             posts: [
@@ -55,15 +68,11 @@ const useCardStore = createStore<CardState>((set) => ({
                         createdAt: new Date()
                     },
                 ],
-                commentsCount: totalComments([...post.comments, comment]),
+                commentsCount: post.commentsCount + 1,
             }
             : post
             ),
         })),
 }));
-
-function totalComments (comments: Comment[]): number {
-    return comments.length;
-}
 
 export default useCardStore;
